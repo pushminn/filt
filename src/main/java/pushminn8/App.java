@@ -5,8 +5,31 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class App 
-{
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+@Command(name = "filter-util", version = "filter-util 1.0", mixinStandardHelpOptions = true) 
+public class App implements Runnable {
+  @Option(names = { "-o", "--output-dir" }, description = "Directory to store result files") 
+  private Path outputDir = Path.of("");
+  
+  @Option(names = { "-p", "--name-prefix" }, description = "Prefix for names of output files") 
+  private String namePrefix = "";
+
+  @Option(names = { "-a", "--append" }, description = "Append to existing files") 
+  private boolean append;
+
+  @Option(names = { "-s", "--short-stats" }, description = "Show short statistics") 
+  private boolean shortStats;
+
+  @Option(names = { "-f", "--full-stats" }, description = "Show full statistics") 
+  private boolean fullStats;
+
+  @Parameters(paramLabel = "FILE", description = "One or more files to filter in integers, floats and strings")
+  private Path inputFile;
+  
   private Path intFile;
   private Path floatFile;
   private Path stringFile;
@@ -15,9 +38,23 @@ public class App
   private BufferedWriter stringOut;
 
   public App() {
-    intFile = Paths.get("integers.txt");
-    floatFile = Paths.get("floats.txt");
-    stringFile = Paths.get("strings.txt");
+  }
+
+  @Override
+  public void run() {
+    process(inputFile);
+    cleanup();
+  }
+
+  public static void main(String[] args) {
+    int exitCode = new CommandLine(new App()).execute(args);
+    System.exit(exitCode);
+  }
+
+  public void process(Path inputFile) {
+    intFile = Path.of(outputDir.toString(), namePrefix + "integers.txt");
+    floatFile = Path.of(outputDir.toString(), namePrefix + "floats.txt");
+    stringFile = Path.of(outputDir.toString(), namePrefix + "strings.txt");
 
     try {
       intOut = Files.newBufferedWriter(intFile);
@@ -26,15 +63,7 @@ public class App
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-
-  public static void main(String[] args) {
-    App util = new App();
-    util.process(Paths.get("in2.txt"));
-    util.cleanup();
-  }
-
-  public void process(Path inputFile) {
+    
     try {
       Files.lines(inputFile)
            .map(line -> line.trim())
