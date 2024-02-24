@@ -12,6 +12,12 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "filter-util", version = "filter-util 1.0", mixinStandardHelpOptions = true) 
 public class App implements Runnable {
+  @Option(names = { "-s", "--short-stats" }, description = "Show short statistics") 
+  private boolean shortStatsOption;
+
+  @Option(names = { "-f", "--full-stats" }, description = "Show full statistics") 
+  private boolean fullStatsOption;
+
   @Option(names = { "-o", "--output-dir" }, description = "Directory to store result files") 
   private Path outputDir = Path.of("");
   
@@ -21,11 +27,6 @@ public class App implements Runnable {
   @Option(names = { "-a", "--append" }, description = "Append to existing files") 
   private boolean append;
 
-  @Option(names = { "-s", "--short-stats" }, description = "Show short statistics") 
-  private boolean shortStats;
-
-  @Option(names = { "-f", "--full-stats" }, description = "Show full statistics") 
-  private boolean fullStats;
 
   @Parameters(paramLabel = "FILE", description = "One or more files to filter in integers, floats and strings")
   private Path inputFile;
@@ -36,6 +37,7 @@ public class App implements Runnable {
   private BufferedWriter intOut;
   private BufferedWriter floatOut;
   private BufferedWriter stringOut;
+  private Statistics stats;
 
   public App() {
   }
@@ -56,6 +58,7 @@ public class App implements Runnable {
     floatFile = Path.of(outputDir.toString(), namePrefix + "floats.txt");
     stringFile = Path.of(outputDir.toString(), namePrefix + "strings.txt");
 
+    stats = new Statistics();
     try {
       intOut = Files.newBufferedWriter(intFile);
       floatOut = Files.newBufferedWriter(floatFile);
@@ -72,17 +75,21 @@ public class App implements Runnable {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    stats.print(shortStatsOption, fullStatsOption);
   }
 
   public void writeToFile(String str) {
     try {
       if (StringTypeChecker.isInteger(str)) {
+        stats.datum(Integer.parseInt(str));
         intOut.write(str);
         intOut.newLine();
       } else if (StringTypeChecker.isFloat(str)) {
+        stats.datum(Double.parseDouble(str));
         floatOut.write(str);
         floatOut.newLine();
       } else {
+        stats.datum(str);
         stringOut.write(str);
         stringOut.newLine();
       }
