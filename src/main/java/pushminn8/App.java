@@ -28,8 +28,8 @@ public class App implements Runnable {
   private boolean append;
 
 
-  @Parameters(paramLabel = "FILE", description = "One or more files to filter in integers, floats and strings")
-  private Path inputFile;
+  @Parameters(arity="1..*", paramLabel = "FILE", description = "One or more files to filter in integers, floats and strings")
+  private List<Path> inputFiles;
   
   private Path intFile;
   private Path floatFile;
@@ -37,14 +37,14 @@ public class App implements Runnable {
   private BufferedWriter intOut;
   private BufferedWriter floatOut;
   private BufferedWriter stringOut;
+  private ArrayList<BufferedReader> readers;
   private Statistics stats;
-
-  public App() {
-  }
 
   @Override
   public void run() {
-    process(inputFile);
+    initialize();
+    process(inputFiles);
+    stats.print(shortStatsOption, fullStatsOption);
     cleanup();
   }
 
@@ -53,12 +53,21 @@ public class App implements Runnable {
     System.exit(exitCode);
   }
 
-  public void process(Path inputFile) {
+  public void initialize() {
     intFile = Path.of(outputDir.toString(), namePrefix + "integers.txt");
     floatFile = Path.of(outputDir.toString(), namePrefix + "floats.txt");
     stringFile = Path.of(outputDir.toString(), namePrefix + "strings.txt");
-
     stats = new Statistics();
+
+    readers = new ArrayList<BufferedReader>();
+    inputFiles.forEach(file -> {
+      try {
+        readers.add(Files.newBufferedReader(file));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+
     try {
       intOut = Files.newBufferedWriter(intFile);
       floatOut = Files.newBufferedWriter(floatFile);
@@ -66,31 +75,43 @@ public class App implements Runnable {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    
-    try {
-      Files.lines(inputFile)
-           .map(line -> line.trim())
-           .filter(line -> !line.isEmpty())
-           .forEach(line -> writeToFile(line));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    stats.print(shortStatsOption, fullStatsOption);
   }
 
-  public void writeToFile(String str) {
+  public void process(List<Path> files) {
+    while(!readers.isEmpty()) {
+      ArrayList<BufferedReader> readersToRemove = new ArrayList<>();
+      for(BufferedReader reader : readers) {
+        try {
+          String line = reader.readLine();
+          if(line == null) {
+            readersToRemove.add(reader);
+          } else {
+            line = line.trim();
+            if (!line.isEmpty()) {
+              handleLine(line);
+            }
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      readersToRemove.forEach(reader -> readers.remove(reader));
+    }
+  }
+
+  public void handleLine(String line) {
     try {
-      if (StringTypeChecker.isInteger(str)) {
-        stats.datum(Integer.parseInt(str));
-        intOut.write(str);
+      if (StringTypeChecker.isInteger(line)) {
+        stats.datum(Long.parseLong(line));
+        intOut.write(line);
         intOut.newLine();
-      } else if (StringTypeChecker.isFloat(str)) {
-        stats.datum(Double.parseDouble(str));
-        floatOut.write(str);
+      } else if (StringTypeChecker.isFloat(line)) {
+        stats.datum(Double.parseDouble(line));
+        floatOut.write(line);
         floatOut.newLine();
       } else {
-        stats.datum(str);
-        stringOut.write(str);
+        stats.datum(line);
+        stringOut.write(line);
         stringOut.newLine();
       }
     } catch (IOException e) {
@@ -104,7 +125,7 @@ public class App implements Runnable {
       floatOut.close();
       stringOut.close();
     } catch (IOException e) {
-      System.err.println("Не получить закрыть BufferedWriter: "
+      System.err.println("Не удалось закрыть BufferedWriter: "
                          + e.getMessage());
     }
   }

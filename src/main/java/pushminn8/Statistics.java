@@ -13,9 +13,9 @@ public class Statistics {
   private int numOfStrings;
 
   // Для полной статистики по каждому типу.
-  private int integersMin;
-  private int integersMax;
-  private int integersSum;
+  private long integersMin;
+  private long integersMax;
+  private long integersSum;
 
   private double floatsMin;
   private double floatsMax;
@@ -24,7 +24,7 @@ public class Statistics {
   private String stringShortest;
   private String stringLongest;
 
-  public void datum(int i) {
+  public void datum(long i) {
     if (numOfIntegers == 0) {
       integersMin = i;
       integersMax = i;
@@ -72,10 +72,10 @@ public class Statistics {
   public int countStrings() {
     return numOfStrings;
   }
-  public int minInteger() {
+  public long minInteger() {
     return integersMin;
   }
-  public int maxInteger() {
+  public long maxInteger() {
     return integersMax;
   }
   public double minFloat() {
@@ -90,7 +90,7 @@ public class Statistics {
   public double maxNumber() {
     return Math.max(integersMax, floatsMax);
   }
-  public int sumOfIntegers() {
+  public long sumOfIntegers() {
     return integersSum;
   }
   public double sumOfFloats() {
