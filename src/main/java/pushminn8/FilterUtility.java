@@ -56,9 +56,16 @@ public class FilterUtility implements Runnable {
     });
 
     try {
-      Path intFile = Path.of(outputDir.toString(), namePrefix + "integers.txt");
-      Path floatFile = Path.of(outputDir.toString(), namePrefix + "floats.txt");
-      Path stringFile = Path.of(outputDir.toString(), namePrefix + "strings.txt");
+      Files.createDirectories(outputDir);
+    } catch (IOException e) {
+      System.err.println("Не удалось создать папку "+outputDir+" : "
+                         + e.getMessage());
+    }
+
+    try {
+      Path intFile = outputDir.resolve(namePrefix + "integers.txt");
+      Path floatFile = outputDir.resolve(namePrefix + "floats.txt");
+      Path stringFile = outputDir.resolve(namePrefix + "strings.txt");
       if (appendOption) {
         intWriter = Files.newBufferedWriter(intFile,
                                             StandardOpenOption.CREATE,
