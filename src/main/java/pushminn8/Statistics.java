@@ -100,6 +100,7 @@ public class Statistics {
     return floatsSum + integersSum;
   }
   public double meanOfIntegers() {
+    
     return integersSum / numOfIntegers;
   }
   public double meanOfFloats() {
@@ -116,32 +117,53 @@ public class Statistics {
   }
 
   public void print(boolean shortStatsOption, boolean fullStatsOption) {
-    String shortStats = "Количество записанных элементов."
+
+    String intsMsg = "";
+    String floatsMsg = "";
+    String numbersMsg = "";
+    String stringsMsg = "";
+    if (numOfIntegers > 0) {
+      intsMsg = "\n"
+                     + "\n  Целые числа:"
+                     + "\n    Минимальное: " + minInteger()
+                     + "\n    Максимальное: " + maxInteger()
+                     + "\n    Сумма: " + sumOfIntegers()
+                     + "\n    Среднее: " + meanOfIntegers();
+    } 
+    if (numOfFloats > 0) {
+      floatsMsg = "\n"
+                       + "\n  Вещественные числа:"
+                       + "\n    Минимальное: " + minFloat()
+                       + "\n    Максимальное: " + maxFloat()
+                       + "\n    Сумма: " + sumOfFloats()
+                       + "\n    Среднее: " + meanOfFloats();
+    }
+    if (numOfIntegers > 0 && numOfFloats > 0) {
+      numbersMsg = "\n"
+                        + "\n  Числа в общем:"
+                        + "\n    Минимальное: " + minNumber()
+                        + "\n    Максимальное: " + maxNumber()
+                        + "\n    Сумма: " + sumOfNumbers()
+                        + "\n    Среднее: " + meanOfNumbers();
+    }
+    if (numOfStrings > 0) {
+      stringsMsg = "\n"
+                        + "\n  Строки:"
+                        + "\n    Самая короткая: " + shortestString()
+                        + "\n    Самая длинная: " + longestString();
+    }
+
+    String shortStats = "# Количество записанных элементов:"
+      + "\n"
       + "\n  Целые числа: " + countIntegers()
       + "\n  Вещественные числа: " + countFloats()
       + "\n  Строки: " + countStrings();
-    String fullStats = "Подробная статистика по каждому типу."
-      + "\n  Целые числа:"
-      + "\n    Минимальное: " + minInteger()
-      + "\n    Максимальное: " + maxInteger()
-      + "\n    Сумма: " + sumOfIntegers()
-      + "\n    Среднее: " + meanOfIntegers()
-      + "\n"
-      + "\n  Вещественные числа:"
-      + "\n    Минимальное: " + minFloat()
-      + "\n    Максимальное: " + maxFloat()
-      + "\n    Сумма: " + sumOfFloats()
-      + "\n    Среднее: " + meanOfFloats()
-      + "\n"
-      + "\n  Числа в общем:"
-      + "\n    Минимальное: " + minNumber()
-      + "\n    Максимальное: " + maxNumber()
-      + "\n    Сумма: " + sumOfNumbers()
-      + "\n    Среднее: " + meanOfNumbers()
-      + "\n"
-      + "\n  Строки:"
-      + "\n    Самая короткая: " + shortestString()
-      + "\n    Самая длинная: " + longestString();
+
+    String fullStats = "# Подробная статистика по каждому типу:"
+      + intsMsg
+      + floatsMsg
+      + numbersMsg
+      + stringsMsg;
 
     if (fullStatsOption) {
       System.out.println(shortStats + "\n\n" + fullStats);

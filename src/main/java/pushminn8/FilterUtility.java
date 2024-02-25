@@ -26,10 +26,8 @@ public class FilterUtility implements Runnable {
   private List<Path> inputFiles;
   
   private ArrayList<BufferedReader> readers;
-  private BufferedWriter intWriter;
-  private BufferedWriter floatWriter;
-  private BufferedWriter stringWriter;
   private Statistics stats;
+  private LineHandler lineHandler;
 
   public static void main(String[] args) {
     int exitCode = new CommandLine(new FilterUtility()).execute(args);
@@ -54,41 +52,8 @@ public class FilterUtility implements Runnable {
         e.printStackTrace();
       }
     });
-
-    try {
-      Files.createDirectories(outputDir);
-    } catch (IOException e) {
-      System.err.println("Не удалось создать папку "+outputDir+" : "
-                         + e.getMessage());
-    }
-
-    try {
-      Path intFile = outputDir.resolve(namePrefix + "integers.txt");
-      Path floatFile = outputDir.resolve(namePrefix + "floats.txt");
-      Path stringFile = outputDir.resolve(namePrefix + "strings.txt");
-      if (appendOption) {
-        intWriter = Files.newBufferedWriter(intFile,
-                                            StandardOpenOption.CREATE,
-                                            StandardOpenOption.WRITE,
-                                            StandardOpenOption.APPEND);
-        floatWriter = Files.newBufferedWriter(floatFile,
-                                              StandardOpenOption.CREATE,
-                                              StandardOpenOption.WRITE,
-                                              StandardOpenOption.APPEND);
-        stringWriter = Files.newBufferedWriter(stringFile,
-                                               StandardOpenOption.CREATE,
-                                               StandardOpenOption.WRITE,
-                                               StandardOpenOption.APPEND);
-      } else {
-        intWriter = Files.newBufferedWriter(intFile);
-        floatWriter = Files.newBufferedWriter(floatFile);
-        stringWriter = Files.newBufferedWriter(stringFile);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
     stats = new Statistics();
+    lineHandler = new LineHandler(outputDir, namePrefix, stats, appendOption);
   }
 
   public void processFiles() {
@@ -102,7 +67,7 @@ public class FilterUtility implements Runnable {
           } else {
             line = line.trim();
             if (!line.isEmpty()) {
-              handleLine(line);
+              lineHandler.handleLine(line);
             }
           }
         } catch (IOException e) {
@@ -110,26 +75,6 @@ public class FilterUtility implements Runnable {
         }
       }
       readersToRemove.forEach(reader -> readers.remove(reader));
-    }
-  }
-
-  public void handleLine(String line) {
-    try {
-      if (StringTypeChecker.isInteger(line)) {
-        stats.datum(Long.parseLong(line));
-        intWriter.write(line);
-        intWriter.newLine();
-      } else if (StringTypeChecker.isFloat(line)) {
-        stats.datum(Double.parseDouble(line));
-        floatWriter.write(line);
-        floatWriter.newLine();
-      } else {
-        stats.datum(line);
-        stringWriter.write(line);
-        stringWriter.newLine();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 
@@ -142,13 +87,6 @@ public class FilterUtility implements Runnable {
                            + e.getMessage());
       }
     });
-    try {
-      intWriter.close();
-      floatWriter.close();
-      stringWriter.close();
-    } catch (IOException e) {
-      System.err.println("Не удалось закрыть BufferedWriter: "
-                         + e.getMessage());
-    }
+    lineHandler.close();
   }
 }
