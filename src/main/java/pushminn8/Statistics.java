@@ -116,7 +116,7 @@ public class Statistics {
     return stringLongest;
   }
 
-  public void print(boolean shortStatsOption, boolean fullStatsOption) {
+  public void printToStdOut(boolean shortStatsOption, boolean fullStatsOption) {
 
     String intsMsg = "";
     String floatsMsg = "";
@@ -125,39 +125,56 @@ public class Statistics {
     if (numOfIntegers > 0) {
       intsMsg = "\n"
                      + "\n  Целые числа:"
-                     + "\n    Минимальное: " + minInteger()
-                     + "\n    Максимальное: " + maxInteger()
-                     + "\n    Сумма: " + sumOfIntegers()
-                     + "\n    Среднее: " + meanOfIntegers();
+                     + String.format("%-24s", "\n    Минимальное: ")
+                     + minInteger()
+                     + String.format("%-24s", "\n    Максимальное: ")
+                     + maxInteger()
+                     + String.format("%-24s", "\n    Сумма: ")
+                     + sumOfIntegers()
+                     + String.format("%-24s", "\n    Среднее: ")
+                     + String.format("%.2f", meanOfIntegers());
     } 
     if (numOfFloats > 0) {
       floatsMsg = "\n"
                        + "\n  Вещественные числа:"
-                       + "\n    Минимальное: " + minFloat()
-                       + "\n    Максимальное: " + maxFloat()
-                       + "\n    Сумма: " + sumOfFloats()
-                       + "\n    Среднее: " + meanOfFloats();
+                       + String.format("%-24s", "\n    Минимальное: ")
+                       + String.format("%.2f", minFloat())
+                       + String.format("%-24s", "\n    Максимальное: ")
+                       + String.format("%.2f", maxFloat())
+                       + String.format("%-24s", "\n    Сумма: ")
+                       + String.format("%.2f", sumOfFloats())
+                       + String.format("%-24s", "\n    Среднее: ")
+                       + String.format("%.2f", meanOfFloats());
     }
     if (numOfIntegers > 0 && numOfFloats > 0) {
       numbersMsg = "\n"
                         + "\n  Числа в общем:"
-                        + "\n    Минимальное: " + minNumber()
-                        + "\n    Максимальное: " + maxNumber()
-                        + "\n    Сумма: " + sumOfNumbers()
-                        + "\n    Среднее: " + meanOfNumbers();
+                        + String.format("%-24s", "\n    Минимальное: ")
+                        + String.format("%.2f", minNumber())
+                        + String.format("%-24s", "\n    Максимальное: ")
+                        + String.format("%.2f", maxNumber())
+                        + String.format("%-24s", "\n    Сумма: ")
+                        + String.format("%.2f", sumOfNumbers())
+                        + String.format("%-24s", "\n    Среднее: ")
+                        + String.format("%.2f", meanOfNumbers());
     }
     if (numOfStrings > 0) {
       stringsMsg = "\n"
                         + "\n  Строки:"
-                        + "\n    Самая короткая: " + shortestString()
-                        + "\n    Самая длинная: " + longestString();
+                        + String.format("%-24s", "\n    Самая короткая: ")
+                        + shortestString()
+                        + String.format("%-24s", "\n    Самая длинная: ")
+                        + longestString();
     }
 
     String shortStats = "# Количество записанных элементов:"
       + "\n"
-      + "\n  Целые числа: " + countIntegers()
-      + "\n  Вещественные числа: " + countFloats()
-      + "\n  Строки: " + countStrings();
+      + String.format("%-24s", "\n  Целые числа: ")
+      + countIntegers()
+      + String.format("%-24s", "\n  Вещественные числа: ")
+      + countFloats()
+      + String.format("%-24s", "\n  Строки: ")
+      + countStrings();
 
     String fullStats = "# Подробная статистика по каждому типу:"
       + intsMsg

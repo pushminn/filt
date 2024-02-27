@@ -22,8 +22,10 @@ public class LineHandler {
     try {
       Files.createDirectories(outputDir);
     } catch (IOException e) {
-      System.err.println("Не удалось создать папку "+outputDir+" : "
-                         + e.getMessage());
+      outputDir = Path.of("");
+      System.err.println("Внимание: не удалось создать папку "+outputDir+" : "
+                         + e.getMessage()
+                         + ": используем текущую папку");
     }
     this.stats = stats;
     this.outputDir = outputDir;
@@ -43,7 +45,7 @@ public class LineHandler {
         stringWriter.close();
       }
     } catch (IOException e) {
-      System.err.println("Не удалось закрыть BufferedWriter: "
+      System.err.println("Не удалось закрыть файлы для записи: "
                          + e.getMessage());
     }
   }
@@ -51,32 +53,54 @@ public class LineHandler {
   public void handleLine(String line) {
     try {
       if (StringTypeChecker.isInteger(line)) {
-        stats.datum(Long.parseLong(line));
-        if (!integersFileCreated) {
-          initIntWriter();
-        }
-        intWriter.write(line);
-        intWriter.newLine();
+        writeInteger(line);
       } else if (StringTypeChecker.isFloat(line)) {
-        stats.datum(Double.parseDouble(line));
-        if (!floatsFileCreated) {
-          initFloatWriter();
-        }
-        floatWriter.write(line);
-        floatWriter.newLine();
+        writeFloat(line);
       } else {
+        writeString(line);
+      }
+    } catch (IOException e) {
+      System.err.println("Не удалось сделать запись в файл: "+e.getMessage());
+    }
+  }
+
+  private void writeInteger(String line) throws IOException {
+    try {
+      stats.datum(Long.parseLong(line));
+    } catch (NumberFormatException e) {
+      writeString(line);
+    }
+    if (!integersFileCreated) {
+      initIntWriter();
+    }
+    intWriter.write(line);
+    intWriter.newLine();
+  }
+
+  private void writeFloat(String line) throws IOException {
+    try {
+      stats.datum(Double.parseDouble(line));
+    } catch (NumberFormatException e) {
+      writeString(line);
+    }
+    if (!floatsFileCreated) {
+      initFloatWriter();
+    }
+    floatWriter.write(line);
+    floatWriter.newLine();
+  }
+  private void writeString(String line) throws IOException {
+    try {
         stats.datum(line);
         if (!stringsFileCreated) {
           initStringWriter();
         }
         stringWriter.write(line);
         stringWriter.newLine();
-      }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Не удалось сделать запись в файл: "+e.getMessage());
     }
   }
-
   private void initIntWriter() {
     try {
       Path intFile = outputDir.resolve(namePrefix + "integers.txt");
@@ -89,7 +113,9 @@ public class LineHandler {
         intWriter = Files.newBufferedWriter(intFile);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Ошибка: не удалось открыть файл для записи целых чисел: " + e.getMessage());
+      int failureExitCode = 1;
+      System.exit(failureExitCode);
     }
     integersFileCreated = true;
   }
@@ -106,14 +132,16 @@ public class LineHandler {
         floatWriter = Files.newBufferedWriter(floatFile);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Ошибка: не удалось открыть файл для записи вещественных чисел: " + e.getMessage());
+      int failureExitCode = 1;
+      System.exit(failureExitCode);
     }
     floatsFileCreated = true;
   }
 
   private void initStringWriter() {
     try {
-      Path stringFile = outputDir.resolve(namePrefix + "string.txt");
+      Path stringFile = outputDir.resolve(namePrefix + "strings.txt");
       if (appendOption) {
         stringWriter = Files.newBufferedWriter(stringFile,
                                                StandardOpenOption.CREATE,
@@ -123,7 +151,9 @@ public class LineHandler {
         stringWriter = Files.newBufferedWriter(stringFile);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Ошибка: не удалось открыть файл для записи строк: " + e.getMessage());
+      int failureExitCode = 1;
+      System.exit(failureExitCode);
     }
     stringsFileCreated = true;
   }
