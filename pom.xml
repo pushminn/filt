@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
     
   <groupId>pushminn8</groupId>
-  <artifactId>filter-util</artifactId>
+  <artifactId>filt</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>filter-util</name>
+  <name>filt</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,6 +31,19 @@
             <compilerArgs>
               <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
             </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>appassembler-maven-plugin</artifactId>
+          <version>1.10</version>
+          <configuration>
+            <programs>
+              <program>
+                <mainClass>pushminn8.FilterUtility</mainClass>
+                <id>filt</id>
+              </program>
+            </programs>
           </configuration>
         </plugin>
       </plugins>
