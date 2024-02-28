@@ -1,48 +1,62 @@
 package pushminn8;
 
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/**
+ * Проверяет тип строки, является ли она целым
+ * числом или вещественным.
+ */
 public class StringTypeChecker {
   private static final String INT_REGEX = "^[+-]?[0-9]+$";
-  private static final String Digits     = "(\\d+)";
-    // an exponent is 'e' or 'E' followed by an optionally
-    // signed decimal integer.
-  private static final String Exp        = "[eE][+-]?"+Digits;
+  private static final String DIGITS     = "(\\d+)";
+  // Экспоненциальная часть.
+  private static final String EXP        = "[eE][+-]?"+DIGITS;
+  // Десятичное вещественное число содержит самое большее следующие
+  // части:
+  // Знак Цифры . Цифры Экспоненциальная_часть
   private static final String FLOAT_REGEX =
-            ("^[+-]?(" +         // Optional sign character
-      
-             // A decimal floating-point string representing a finite positive
-             // number without a leading sign has at most five basic pieces:
-             // Digits . Digits ExponentPart FloatTypeSuffix
-      
-             // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
-             "("+Digits+"(\\.)?("+Digits+"?)("+Exp+")?)|"+
-      
-             // . Digits ExponentPart_opt FloatTypeSuffix_opt
-             "(\\.("+Digits+")("+Exp+")?))");
+            ("^[+-]?(" +         // Опциональный знак.
+             // Цифры  опц_точка  опц_цифры  опц_экспонента.
+             "("+DIGITS+"(\\.)?("+DIGITS+"?)("+EXP+")?)|"+
+             // Или если число начинается с точки.
+             "(\\.("+DIGITS+")("+EXP+")?))");
 
-  // private static final String DOUBLE_REGEX = "^[-+]?[0-9]*(\\.)?[0-9]+([eE][-+]?[0-9]+)?$";
-  private static final Pattern intPattern = Pattern.compile(INT_REGEX);
-  private static final Pattern floatPattern = Pattern.compile(FLOAT_REGEX);
+  private static final Pattern INT_PATTERN = Pattern.compile(INT_REGEX);
+  private static final Pattern FLOAT_PATTERN = Pattern.compile(FLOAT_REGEX);
   private static Matcher matcher;
 
+  /** 
+   * Проверяет, является ли строка целым числом.
+   * 
+   * @param str  строка, которая подергается проверке
+   * @return     <code>true</code> если str соответствует
+   *             регулярному выражению, представляющему
+   *             целое число
+   *             <code>false</code> в противном случае
+   */
   public static boolean isInteger(String str) {
-    matcher = intPattern.matcher(str);
+    matcher = INT_PATTERN.matcher(str);
     if (matcher.matches()) {
-      // System.out.println(matcher.group());
       return true;
     } else {
       return false;
     }
   }
+  /** 
+   * Проверяет, является ли строка вещественным числом.
+   * 
+   * @param str  строка, которая подергается проверке
+   * @return     <code>true</code> если str соответствует
+   *             регулярному выражению, представляющему
+   *             вещественное число
+   *             <code>false</code> в противном случае
+   */
   public static boolean isFloat(String str) {
-    matcher = floatPattern.matcher(str);
+    matcher = FLOAT_PATTERN.matcher(str);
     if (matcher.matches()) {
-      // System.out.println(matcher.group());
       return true;
     } else {
-      // System.out.println("================Not found in line");
       return false;
     }
   }
